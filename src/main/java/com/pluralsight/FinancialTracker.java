@@ -1,17 +1,14 @@
 package com.pluralsight;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
+
+import static com.sun.beans.introspect.PropertyInfo.Name.description;
 
 public class FinancialTracker {
 
@@ -59,6 +56,7 @@ public class FinancialTracker {
         scanner.close();
     }
 
+
     public static void loadTransactions(String fileName) {
         // This method should load transactions from a file with the given file name.
         // If the file does not exist, it should be created.
@@ -68,7 +66,62 @@ public class FinancialTracker {
         // For example: 2023-04-29,13:45:00,Amazon,PAYMENT,29.99
         // After reading all the transactions, the file should be closed.
         // If any errors occur, an appropriate error message should be displayed.
+/*        try {
+            File file = new File(fileName);
+            if (file.createNewFile()) {
+                System.out.println("file creatred");
+            } else {
+                System.out.println("file already present");
+            }
+
+            BufferedReader reader = new BufferedReader(new FileReader(fileName));
+            String line;
+
+            while (line = reader.readLine() != null) {
+
+                String[] parts = line.split("\\|");
+                if (parts.length == 5) {
+                    String data = parts[0];
+                    String time = parts[1];
+                    String vendor = parts[2];
+                    String type = parts[3];
+                    double amount =
+                            Double.parseDouble(parts[4]);
+
+                }
+            }
+            catch(IOException e){
+                System.out.println("smt wrong");
+            }
+        }*/
+
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(fileName));
+                String line;
+            while ((line = reader.readLine()) != null) {
+                String[] tokens = line.split("\\|");
+                LocalDate date  = LocalDate.parse(tokens[0],DATE_FORMATTER);
+                LocalTime time = LocalTime.parse(tokens[1], TIME_FORMATTER);
+                String description= tokens[2];
+                String vendor = tokens[3];
+                double amount = Double.parseDouble(tokens[4]);
+
+                Transaction transaction = new Transaction(date, time,description, vendor, amount);
+                transactions.add(transaction);
+                
+                
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+
+
+
+
 
     private static void addDeposit(Scanner scanner) {
         // This method should prompt the user to enter the date, time, vendor, and amount of a deposit.
@@ -76,6 +129,20 @@ public class FinancialTracker {
         // The amount should be a positive number.
         // After validating the input, a new `Deposit` object should be created with the entered values.
         // The new deposit should be added to the `transactions` ArrayList.
+        System.out.println("enter the date");
+        String dateInput= scanner.nextLine();
+        LocalDate date = LocalDate.parse(dateInput, DATE_FORMATTER);
+        System.out.println("enter the time");
+        String timeInput= scanner.nextLine();
+        LocalTime time = LocalTime.parse(timeInput);
+        System.out.println("Enter the vendor;");
+        String vendor = scanner.nextLine();
+        System.out.println("enter the amount");
+        double amount= Double.parseDouble(scanner.nextLine());
+        Transaction transaction = new Transaction(date, time,description, vendor, amount);
+        transactions.add(transaction);
+
+
     }
 
     private static void addPayment(Scanner scanner) {
@@ -192,4 +259,5 @@ public class FinancialTracker {
         // Transactions with a matching vendor name are printed to the console.
         // If no transactions match the specified vendor name, the method prints a message indicating that there are no results.
     }
+
 }
