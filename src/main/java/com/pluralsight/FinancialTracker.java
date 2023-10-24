@@ -151,6 +151,8 @@ public class FinancialTracker {
         // The amount should be a positive number.
         // After validating the input, a new `Payment` object should be created with the entered values.
         // The new payment should be added to the `transactions` ArrayList.
+        System.out.println();
+        
     }
 
     private static void ledgerMenu(Scanner scanner) {
