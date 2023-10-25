@@ -1,2 +1,1 @@
-# Thie is my capstone
-~~~java 
+# financial-tracker
