@@ -5,14 +5,13 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Scanner;
 
 import static com.sun.beans.introspect.PropertyInfo.Name.description;
 
 public class FinancialTracker {
 
-    private static ArrayList<Transaction> transactions = new ArrayList<Transaction>();
+    private static ArrayList<Transaction> transactions = new ArrayList<>();
     private static final String FILE_NAME = "transactions.csv";
     private static final String DATE_FORMAT = "yyyy-MM-dd";
     private static final String TIME_FORMAT = "HH:mm:ss";
@@ -69,7 +68,7 @@ public class FinancialTracker {
 /*        try {
             File file = new File(fileName);
             if (file.createNewFile()) {
-                System.out.println("file creatred");
+                System.out.println("file created");
             } else {
                 System.out.println("file already present");
             }
@@ -98,19 +97,19 @@ public class FinancialTracker {
 
         try {
             BufferedReader reader = new BufferedReader(new FileReader(fileName));
-                String line;
+            String line;
             while ((line = reader.readLine()) != null) {
                 String[] tokens = line.split("\\|");
-                LocalDate date  = LocalDate.parse(tokens[0],DATE_FORMATTER);
+                LocalDate date = LocalDate.parse(tokens[0], DATE_FORMATTER);
                 LocalTime time = LocalTime.parse(tokens[1], TIME_FORMATTER);
-                String description= tokens[2];
+                String description = tokens[2];
                 String vendor = tokens[3];
                 double amount = Double.parseDouble(tokens[4]);
 
-                Transaction transaction = new Transaction(date, time,description, vendor, amount);
+                Transaction transaction = new Transaction(date, time, description, vendor, amount);
                 transactions.add(transaction);
-                
-                
+
+reader.close();
             }
 
         } catch (IOException e) {
@@ -119,29 +118,40 @@ public class FinancialTracker {
     }
 
 
-
-
-
-
     private static void addDeposit(Scanner scanner) {
         // This method should prompt the user to enter the date, time, vendor, and amount of a deposit.
         // The user should enter the date and time in the following format: yyyy-MM-dd HH:mm:ss
         // The amount should be a positive number.
         // After validating the input, a new `Deposit` object should be created with the entered values.
         // The new deposit should be added to the `transactions` ArrayList.
-        System.out.println("enter the date");
-        String dateInput= scanner.nextLine();
+        System.out.println("enter the date ,in this format(yyyy-MM-dd):");
+        String dateInput = scanner.nextLine();
         LocalDate date = LocalDate.parse(dateInput, DATE_FORMATTER);
-        System.out.println("enter the time");
-        String timeInput= scanner.nextLine();
-        LocalTime time = LocalTime.parse(timeInput);
-        System.out.println("Enter the vendor;");
+        System.out.println("enter the time, in this format(HH;mm;ss):");
+        String timeInput = scanner.nextLine();
+        LocalTime time = LocalTime.parse(timeInput,TIME_FORMATTER);
+        System.out.println("Enter the description");
+        String description = scanner.nextLine();
+        System.out.println("Enter the vendor");
         String vendor = scanner.nextLine();
         System.out.println("enter the amount");
-        double amount= Double.parseDouble(scanner.nextLine());
-        Transaction transaction = new Transaction(date, time,description, vendor, amount);
+
+        double amount = Double.parseDouble(scanner.nextLine());
+        Transaction transaction = new Transaction(date, time, description, vendor, amount);
         transactions.add(transaction);
 
+        String transactionString = String.format("%s|%s|%s|%s|%.2f",date.format(DATE_FORMATTER),
+                time.format(TIME_FORMATTER),description,vendor,amount);
+
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME,true));
+            writer.write(transactionString);
+            writer.newLine();
+            System.out.println("Deposit added successfully");
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
@@ -151,9 +161,34 @@ public class FinancialTracker {
         // The amount should be a positive number.
         // After validating the input, a new `Payment` object should be created with the entered values.
         // The new payment should be added to the `transactions` ArrayList.
-        System.out.println();
-        
+        System.out.println("enter the date");
+        String dateInput = scanner.nextLine();
+        LocalDate date = LocalDate.parse(dateInput, DATE_FORMATTER);
+        System.out.println("enter the time");
+        String timeInput = scanner.nextLine();
+        LocalTime time = LocalTime.parse(timeInput,TIME_FORMATTER);
+        System.out.println("Enter the description");
+        String description = scanner.nextLine();
+        System.out.println("enter the vendor");
+        String vendor = scanner.nextLine();
+        System.out.println("enter the amount");
+        double amount = Double.parseDouble(scanner.nextLine());
+        amount = amount * -1;
+        Transaction transaction = new Transaction(date, time, description, vendor, amount);
+        transactions.add(transaction);
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME,true));
+            String transactionString = new String();
+            writer.write(transactionString);
+            writer.newLine();
+            System.out.println(" payment process successfully");
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
+
 
     private static void ledgerMenu(Scanner scanner) {
         boolean running = true;
@@ -193,16 +228,35 @@ public class FinancialTracker {
     private static void displayLedger() {
         // This method should display a table of all transactions in the `transactions` ArrayList.
         // The table should have columns for date, time, vendor, type, and amount.
+        System.out.println("Ledger:");
+        for(Transaction transaction: transactions  ){
+            System.out.println( transaction);
+        }
     }
 
     private static void displayDeposits() {
         // This method should display a table of all deposits in the `transactions` ArrayList.
         // The table should have columns for date, time, vendor, and amount.
-    }
+        System.out.println("deposits:");
 
+        for(Transaction transaction: transactions  ){
+            if(transaction.getAmount()> 0) {
+                System.out.println(transaction);
+            }
+
+        }
+
+    }
     private static void displayPayments() {
         // This method should display a table of all payments in the `transactions` ArrayList.
         // The table should have columns for date, time, vendor, and amount.
+        System.out.println("payment:");
+        for(Transaction transaction: transactions  ){
+            if( transaction.getAmount()<0) {
+                System.out.println(transaction);
+            }
+
+        }
     }
 
     private static void reportsMenu(Scanner scanner) {
@@ -223,6 +277,8 @@ public class FinancialTracker {
                 case "1":
                     // Generate a report for all transactions within the current month,
                     // including the date, vendor, and amount for each transaction.
+
+
                 case "2":
                     // Generate a report for all transactions within the previous month,
                     // including the date, vendor, and amount for each transaction.
@@ -262,4 +318,8 @@ public class FinancialTracker {
         // If no transactions match the specified vendor name, the method prints a message indicating that there are no results.
     }
 
+    private static class Payment {
+        public Payment(LocalDate date, String vendor, double amount) {
+        }
+    }
 }
