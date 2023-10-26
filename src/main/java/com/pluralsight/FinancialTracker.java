@@ -3,6 +3,8 @@ package com.pluralsight;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Month;
+import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -65,34 +67,6 @@ public class FinancialTracker {
         // For example: 2023-04-29,13:45:00,Amazon,PAYMENT,29.99
         // After reading all the transactions, the file should be closed.
         // If any errors occur, an appropriate error message should be displayed.
-/*        try {
-            File file = new File(fileName);
-            if (file.createNewFile()) {
-                System.out.println("file created");
-            } else {
-                System.out.println("file already present");
-            }
-
-            BufferedReader reader = new BufferedReader(new FileReader(fileName));
-            String line;
-
-            while (line = reader.readLine() != null) {
-
-                String[] parts = line.split("\\|");
-                if (parts.length == 5) {
-                    String data = parts[0];
-                    String time = parts[1];
-                    String vendor = parts[2];
-                    String type = parts[3];
-                    double amount =
-                            Double.parseDouble(parts[4]);
-
-                }
-            }
-            catch(IOException e){
-                System.out.println("smt wrong");
-            }
-        }*/
 
 
         try {
@@ -109,8 +83,9 @@ public class FinancialTracker {
                 Transaction transaction = new Transaction(date, time, description, vendor, amount);
                 transactions.add(transaction);
 
-reader.close();
+
             }
+            reader.close();
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -273,25 +248,24 @@ reader.close();
 
             String input = scanner.nextLine().trim();
 
+
             switch (input) {
                 case "1":
-                    // Generate a report for all transactions within the current month,
-                    // including the date, vendor, and amount for each transaction.
+                    searchByVendor(scanner);
+
+            case"2":
+                    previousYear();
 
 
-                case "2":
-                    // Generate a report for all transactions within the previous month,
-                    // including the date, vendor, and amount for each transaction.
                 case "3":
-                    // Generate a report for all transactions within the current year,
-                    // including the date, vendor, and amount for each transaction.
+                     yeartodate();
 
                 case "4":
-                    // Generate a report for all transactions within the previous year,
-                    // including the date, vendor, and amount for each transaction.
+                   previousmonth();
+
                 case "5":
-                    // Prompt the user to enter a vendor name, then generate a report for all transactions
-                    // with that vendor, including the date, vendor, and amount for each transaction.
+                    MonthToDate();
+
                 case "0":
                     running = false;
                 default:
@@ -301,15 +275,83 @@ reader.close();
         }
     }
 
+    private static void searchByVendor(Scanner scanner) {
+        System.out.println("Enter the Vendors Name;");
+        String vendorName= scanner.nextLine().trim();
+        System.out.println("Report for transactions with vendor;" + vendorName);
 
-    private static void filterTransactionsByDate(LocalDate startDate, LocalDate endDate) {
-        // This method filters the transactions by date and prints a report to the console.
-        // It takes two parameters: startDate and endDate, which represent the range of dates to filter by.
-        // The method loops through the transactions list and checks each transaction's date against the date range.
-        // Transactions that fall within the date range are printed to the console.
-        // If no transactions fall within the date range, the method prints a message indicating that there are no results.
+    }
+    private static void previousYear() {
+        System.out.println("Report for the previous Year");
+        LocalDate date = LocalDate.now();
+        LocalDate previousYear = date.minusYears(1);
+        for(Transaction transaction: transactions  ) {
+            if (transaction.getDate().getYear() == previousYear.getYear()) {
+                System.out.println(transaction);
+            }
+        }
+
+    }
+    private static void yeartodate() {
+        System.out.println("year-to-date report");
+            LocalDate date = LocalDate.now();
+            for(Transaction transaction: transactions  ){
+                if(transaction.getDate().getYear()== date.getYear()) {
+                    System.out.println(transaction);
+                }
+
+    }
+        }
+
+        private static void previousmonth() {
+            System.out.println("Report for the previous month");
+            System.out.println("Report for the previous Year");
+            LocalDate date = LocalDate.now();
+            LocalDate previousMonth = date.minusMonths(1);
+            for (Transaction transaction : transactions) {
+                if (transaction.getDate().getMonthValue() == previousMonth.getMonthValue()) {
+                    System.out.println(transaction);
+                }
+
+
+            }
+        }
+    private static void MonthToDate() {
+        System.out.println("month-to-date-report");
+        System.out.println("month-to-date report");
+        LocalDate date = LocalDate.now();
+        for (Transaction transaction : transactions) {
+            if (transaction.getDate().getMonthValue() == date.getMonthValue()) {
+                System.out.println(transaction);
+            }
+        }
     }
 
+
+
+
+            private static void filterTransactionsByDate(LocalDate startDate, LocalDate endDate) {
+                // This method filters the transactions by date and prints a report to the console.
+                // It takes two parameters: startDate and endDate, which represent the range of dates to filter by.
+                // The method loops through the transactions list and checks each transaction's date against the date range.
+                // Transactions that fall within the date range are printed to the console.
+                // If no transactions fall within the date range, the method prints a message indicating that there are no results.
+                for (Transaction transaction : transactions) {
+                    LocalDate transactionDate = transaction.getDate();
+
+                    if (transactionDate.isEqual(startDate) | transactionDate.isEqual(endDate) | (transactionDate.isAfter(startDate)
+                            & transactionDate.isBefore(endDate))) {
+                        System.out.println("Transaction Date: " + transactionDate);
+                        System.out.println("Description: " + transaction.getDescription());
+                        System.out.println("Amount: " + transaction.getAmount());
+                        System.out.println("-----------------------------------");
+                        //Transactions = true;
+                    }
+                }
+
+                //if (!hasTransactionsInRange) {
+                System.out.println("No transactions found within the specified date range.");
+            }
     private static void filterTransactionsByVendor(String vendor) {
         // This method filters the transactions by vendor and prints a report to the console.
         // It takes one parameter: vendor, which represents the name of the vendor to filter by.
