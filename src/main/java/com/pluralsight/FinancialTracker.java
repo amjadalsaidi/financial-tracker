@@ -54,7 +54,6 @@ public class FinancialTracker {
                     break;
             }
         }
-
         scanner.close();
     }
 
@@ -362,7 +361,7 @@ public class FinancialTracker {
                 System.out.println("Transaction Date: " + transactionDate);
                 System.out.println("Description: " + transaction.getDescription());
                 System.out.println("Amount: " + transaction.getAmount());
-                System.out.println("-----------------------------------");
+                System.out.println("-------");
                 //Transactions = true;
             }
         }
@@ -382,6 +381,7 @@ public class FinancialTracker {
         for (Transaction transaction : transactions) {
             if(transaction.getVendor().equalsIgnoreCase(vendor)){
                 System.out.println(transaction);
+
             }
         }
     }
